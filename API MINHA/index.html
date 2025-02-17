@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pesquisa de Rick and Morty</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="icon" href="icons8-rick-e-morty-48.png" type="png">
+    <style>
+        body {
+            background: linear-gradient(to right, #e0f7fa, #ffffff);
+            font-family: 'Arial', sans-serif;
+        }
+        .navbar {
+            background-color: #00bcd4;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .navbar-brand img {
+            filter: drop-shadow(2px 2px 5px rgba(0, 0, 0, 0.5));
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .input-group {
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+            width: 15rem; 
+        }
+        .card:hover {
+            transform: scale(1.05);
+        }
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .list-group-item {
+            background-color: #f8f9fa;
+        }
+        .list-group-item strong {
+            color: #007bff;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+            transform: scale(1.05);
+        }
+        .loading {
+            display: none;
+            margin: 20px auto;
+        }
+        .icon {
+            width: 50px; 
+            height: 50px; 
+        }
+        #characterImage {
+            width: 100%;
+            height: auto; 
+        }
+    </style>
+</head>
+
+<body>
+<nav class="navbar">
+  <div class="container">
+      <a class="navbar-brand" href="#">
+          <img src="download (1).png" alt="Rick and Morty" width="90">
+      </a>
+  </div>
+</nav>
+
+<div class="container text-center mt-5">
+  <h1>Pesquisa de Rick and Morty</h1>
+
+  <div class="input-group mb-3">
+      <input type="text" id="characterInput" class="form-control" placeholder="Insira o nome do personagem" aria-label="Insira o nome do personagem" aria-describedby="button-addon2">
+      <button class="bg-primary text-white btn btn-outline-secondary" type="button" id="searchButton">Pesquisar</button>
+      <button class="btn btn-outline-danger" type="button" id="clearButton">Limpar</button>
+  </div>
+
+  <div class="loading" id="loading">Carregando...</div>
+
+  <div class="row justify-content-center">
+      <div class="col-md-5">
+          <div class="card" id="characterInfo" style="margin: 0 auto; display: none;">
+              <img id="characterImage" src="" class="card-img-top" alt="Imagem do personagem">
+              <div class="card-body">
+                  <h5 class="card-title" id="characterName">Personagem</h5>
+              </div>
+              <ul class="list-group list-group-flush">
+                  <li class="list-group-item"><strong>Nome:</strong> <span id="characterNameInfo"></span></li>
+                  <li class="list-group-item"><strong>Espécie:</strong> <span id="characterSpecies"></span></li>
+                  <li class="list-group-item"><strong>Status:</strong> <span id="characterStatus"></span></li>
+                  <li class="list-group-item"><strong>Localização:</strong> <span id="characterLocation"></span></li>
+              </ul>
+          </div>
+      </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+<script>
+document.getElementById('searchButton').addEventListener('click', function() {
+    const characterName = document.getElementById('characterInput').value.toLowerCase();
+    const loading = document.getElementById('loading');
+    loading.style.display = 'block'; // Mostrar carregando
+
+    // Faz uma requisição à API de Rick and Morty
+    fetch('https://rickandmortyapi.com/api/character/?name=${characterName}')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Personagem não encontrado');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const character = data.results[0];
+
+            if (character) {
+                document.getElementById('characterName').innerText = character.name;
+                document.getElementById('characterNameInfo').innerText = character.name;
+                document.getElementById('characterSpecies').innerText = character.species;
+                document.getElementById('characterStatus').innerText = character.status;
+                document.getElementById('characterLocation').innerText = character.location.name;
+
+                // Definir a imagem do personagem
+                document.getElementById('characterImage').src = character.image;
+
+                document.getElementById('characterInfo').style.display = 'block'; // Mostrar informações do personagem
+            }
+        })
+        .catch(error => {
+            alert(error.message);
+        })
+        .finally(() => {
+            loading.style.display = 'none'; // Ocultar carregando
+        });
+});
+
+// Função para limpar os resultados
+document.getElementById('clearButton').addEventListener('click', function() {
+    document.getElementById('characterInput').value = '';
+    document.getElementById('characterInfo').style.display = 'none';
+    document.getElementById('loading').style.display = 'none';
+});
+</script>
+</body>
+</html>
